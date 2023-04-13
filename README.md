@@ -4,9 +4,9 @@ This repo contains documentation, and sample code showing how to automatically p
 
 The processing flow is as follows:
 1. A file is uploaded to Amazon S3
-2. A Lambda function is automatically trigger
+2. A Lambda function is automatically triggered
 3. The function uses [Apache Pulsar Batching](https://pulsar.apache.org/docs/2.11.x/concepts-messaging/#batching) to publish each row of the file as a new message to a specified pulsar topic. And moves the processed file to another folder (e.g. `s3://<MY_BUCKET>/processed`)
-4. The topic, configured on [Astra Streaming](https://www.datastax.com/products/astra-streaming) leverages an [Astra DB Sink](https://docs.datastax.com/en/streaming/streaming-learning/pulsar-io/connectors/sinks/astra-db.html) to automatically convert every incoming message as a new record in Astra DB.
+4. The topic, configured in [Astra Streaming](https://www.datastax.com/products/astra-streaming) leverages an [Astra DB Sink](https://docs.datastax.com/en/streaming/streaming-learning/pulsar-io/connectors/sinks/astra-db.html) to automatically convert every incoming message as a new record in Astra DB.
 
 ## Setup Lambda Function
 
@@ -54,5 +54,7 @@ The following steps explain how to deploy this Lambda function in your own envir
         --role <YOUR-ARN_EXECUTION_ROLE> \
         --environment Variables={PROCESSED_PATH=<YOUR_PROCESSED_PATH>,SERVICE_URL=<YOUR_SERVICE_URL>,TOKEN=<YOUR_TOKEN>,TOPIC_FULL_NAME=<YOUR_TOPIC_FULL_NAME>}
     ```
+
+    You can optionally add environment variables for `BATCHING_ENABLED` (valid values: True or False), and `BATCHING_MAX_PUBLISH_DELAY_MS` to have control over the batching strategy. 
 7. [Create the Amazon S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) that you want to use as input.
 8. Create the Amazon S3 trigger by going to the properties section of your the Amazon S3 bucket you just created, and creating an event notification. Select the object events you want to notify on (this sample has been tested only with the PUT event), and specify your `s3-file-to-astra-streaming` lambda function as the destination. You can confirm that the trigger was added by going to the triggers section of your lambda function.

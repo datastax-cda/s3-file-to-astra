@@ -25,12 +25,14 @@ def handler(event, context):
         raise e
     
     processed_path= env.get('PROCESSED_PATH', 'processed')
+    batching_enabled= env.get('BATCHING_ENABLED', 'True')
+    batching_max_publish_delay_ms= env.get('BATCHING_MAX_PUBLISH_DELAY_MS', 10)
 
     client = pulsar.Client(service_url,authentication=pulsar.AuthenticationToken(token))
 
     producer = client.create_producer(topic,
-                                      batching_enabled=True,
-                                        batching_max_publish_delay_ms=10)
+                                      batching_enabled=batching_enabled,
+                                        batching_max_publish_delay_ms=batching_max_publish_delay_ms)
     
     try:
         s3 = boto3.resource('s3')
